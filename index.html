@@ -23,6 +23,10 @@
 	    
         <script>
         	var map;
+
+            // create blank array for all the listing markers
+            var markers = [];
+
         	function initMap(){
         		// Create a new map instance. REQUIRED: where in the html it will go (e.g. div with #map), and center AND zoom.
         		map = new google.maps.Map(document.getElementById('map'), {
@@ -30,12 +34,55 @@
         			zoom: 14
         		});
 
-        		var tribeca = {lat: 40.719526, lng: -74.0089934};
-        		var marker = new google.maps.Marker({
-        			position: tribeca,
-        			map:map,
-        			title: 'First Marker - Trebeca!!'
-        		});
+        		var locations = [
+                    {title: 'Park Ave Penthouse', location: {lat: 40.7713024, lng: -73.9632393}},
+                    {title: 'Chelsea Loft', location: {lat: 40.7444883, lng: -73.9949465}},
+                    {title: 'Union Square Open Floor Plan', location: {lat: 40.7347062, lng: -73.9895759}},
+                    {title: 'East Village Hip Studio', location: {lat: 40.7281777, lng: -73.984377}},
+                    {title: 'TriBeCa Artsy Bachelor Pad', location: {lat: 40.7195264, lng: -74.0089934}},
+                    {title: 'Chinatown Homey Space', location: {lat: 40.7180628, lng: -73.9961237}}
+                ];
+
+                var largeInfowindow = new google.maps.InfoWindow();
+                // In case a marker is outside zoom area and we need to resize and capture the southwest and northeast corners of the window, we create a new "bounds" instance.
+                var bounds = new google.maps.LatLngBounds();
+
+                // Use location array to create array of markers on initialize
+                for (var i =0; i < locations.length; i++) {
+                    // get the position from the location array
+                    var position = locations[i].location;
+                    var title = locations[i].title;
+                    // create a marker per location, and put into markers array
+                    var marker = new google.maps.Marker({
+                        map: map,
+                        position: position,
+                        title: title,
+                        animation: google.maps.Animation.DROP,
+                        id: i
+                    });
+                    // Push the marker to our array of markers
+                    markers.push(marker);
+                    // extend the boundaries of the map for each marker
+                    bounds.extend(marker.position);
+                    // create onclick event to open an infowindow at each marker
+                    marker.addListener('click', function() {
+                        populateInfoWindow(this, largeInfowindow);
+                    });
+                }
+                map.fitBounds(bounds);
+
+                // Function below populates the infowindow with the marker's title when the marker is clicked.
+                function populateInfoWindow (marker, infowindow){
+                    if (infowindow.marker != marker) {
+                        infowindow.marker = marker;
+                        infowindow.setContent('<div>' + marker.title + '</div>');
+                        infowindow.open(map, marker);
+                        // Clear the marker when the infowindow is closed
+                        infowindow.addListener('closeclick', function() {
+                            infowindow.setMarker(null);
+                        });
+                    }
+                }
         	}
         </script>
 
