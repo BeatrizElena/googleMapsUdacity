@@ -12,15 +12,37 @@
 
         	#map {
         		height:100%;
+                bottom: 0px;
+                left: 362px;
+                position: absolute;
+                right: 0px;
         	}
+
+            .options-box {
+                background: #fff;
+                border: 1px solid #999;
+                height:100%;
+                line-height: 35px;
+                padding: 10px 10px 30px 10px;
+                text-align: left;
+                width: 340px;
+            }
         </style>
     </head>
     <body>
+        <div class="container">
+            <div class="options-box">
+                <h1>Find Your New NYC Home</h1>
+                <div>
+                    <input id="show-listings" type="button" value="Show Listings">
+                    <input id="hide-listings" type="button" value="Hide Listings">
+                </div>
+            </div>
+            
+        </div>
         <div id="map">
-        	
         </div>
         
-	    
         <script>
         	var map;
 
@@ -54,7 +76,6 @@
                     var title = locations[i].title;
                     // create a marker per location, and put into markers array
                     var marker = new google.maps.Marker({
-                        map: map,
                         position: position,
                         title: title,
                         animation: google.maps.Animation.DROP,
@@ -69,7 +90,10 @@
                         populateInfoWindow(this, largeInfowindow);
                     });
                 }
-                map.fitBounds(bounds);
+                
+
+                document.getElementById('show-listings').addEventListener('click', showListings);
+                document.getElementById('hide-listings').addEventListener('click', hideListings);
 
                 // Function below populates the infowindow with the marker's title when the marker is clicked.
                 function populateInfoWindow (marker, infowindow){
@@ -81,6 +105,23 @@
                         infowindow.addListener('closeclick', function() {
                             infowindow.setMarker(null);
                         });
+                    }
+                }
+                // Function to loop through all markers in array and display them
+                function showListings(){
+                    var bounds = new google.maps.LatLngBounds();
+                    // Extend the boundaries of the map for each marker and display the marker
+                    for(var i = 0; i < markers.length; i++){
+                        markers[i].setMap(map);
+                        bounds.extend(markers[i].position);
+                    }
+                    map.fitBounds(bounds);
+                }
+
+                // Fx to loop through the listings and hide them all
+                function hideListings(){
+                    for(var i = 0; i < markers.length; i++){
+                        markers[i].setMap(null);
                     }
                 }
         	}
