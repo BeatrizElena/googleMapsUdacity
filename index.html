@@ -1,34 +1,9 @@
 <!DOCTYPE html>
 <html>
     <head>
-        <!-- <script src="maps.js" type="text/javascript"></script> -->
-        <script type='text/javascript' src='config.js'></script>
-        <style>
-        	html, body {
-        		font-family: Arial, sans-serif;
-        		height: 100%;
-        		margin: 0;
-        		padding: 0;
-        	}
-
-        	#map {
-        		height:100%;
-                bottom: 0px;
-                left: 362px;
-                position: absolute;
-                right: 0px;
-        	}
-
-            .options-box {
-                background: #fff;
-                border: 1px solid #999;
-                height:100%;
-                line-height: 35px;
-                padding: 10px 10px 30px 10px;
-                text-align: left;
-                width: 340px;
-            }
-        </style>
+        <link rel="stylesheet" type="text/css" href="maps.css">
+        <script src="maps.js" type="text/javascript"></script>
+        <!-- <script src='config.js'></script> -->
     </head>
     <body>
         <div class="container">
@@ -37,214 +12,52 @@
                 <div>
                     <input id="show-listings" type="button" value="Show Listings">
                     <input id="hide-listings" type="button" value="Hide Listings">
+                    <hr>
+                    <span class="text">Draw a shape to search within it for homes!</span>
+                    <input id="toggle-drawing" type="button" value="DrawingTools">
                 </div>
-            </div>
-            
+                <hr>
+                <div>
+                    <input id="zoom-to-area-text" type="text" placeholder="Enter your favorite area">
+                    <input id="zoom-to-area" type="text" type="button" value="Zoom">
+                </div>
+                <hr>
+                <div>
+                  <span class="text"> Within </span>
+                  <select id="max-duration">
+                    <option value="10">10 min</option>
+                    <option value="15">15 min</option>
+                    <option value="30">30 min</option>
+                    <option value="60">1 hour</option>
+                  </select>
+                  <select id="mode">
+                    <option value="DRIVING">drive</option>
+                    <option value="WALKING">walk</option>
+                    <option value="BICYCLING">bike</option>
+                    <option value="TRANSIT">transit ride</option>
+                  </select>
+                  <span class="text">of</span>
+                  <input id="search-within-time-text" type="text" placeholder="Ex: Google Office NYC or 75 9th Ave, New York, NY">
+                  <input id="search-within-time" type="button" value="Go">
+                </div>
+                <hr>
+                <div>
+                    <span class="text">Search for nearby places</span>
+                    <input id="places-search" type="text" placeholder="Ex: Pizza delivery in NYC">
+                    <input id="go-places" type="button" value="Go">
+                </div>
+     
+              </div>
+        <div id="map"></div>            
         </div>
-        <div id="map">
-        </div>
-        
-        <script>
 
-        	var myKey = config.GoogleMaps_KEY;
-            var map;
 
-            // create blank array for all the listing markers
-            var markers = [];
-
-        	function initMap(){
-                // To style map, create styles array inside initialize function
-                var styles = new google.maps.StyledMapType(
-                    [
-                        {
-                            featureType: 'water',
-                            stylers: [
-                                {color: '#19a0d8'}
-                            ]
-                        },
-                        {
-                            featureType: 'administrative',
-                            elementType: 'labels.text.stroke',
-                            stylers: [
-                                {color: '#ffffff'},
-                                {weight: 6}
-                            ]
-                        },
-                        {
-                            featureType: 'administrative',
-                            elementType: 'labels.text.fill',
-                            stylers: [
-                                {color: '#e85113'},
-                            ]                        
-                        },
-                        {
-                            featureType: 'road.highway',
-                            elementType: 'geometry.stroke',
-                            stylers: [
-                                {color: '#efe9e4'},
-                                {lightness: -40}
-                            ]                        
-                        },
-                        {
-                            featureType: 'transit.station',
-                            stylers: [
-                                {weight: 9},
-                                {hue: '#e85113'}
-                            ]
-                        },
-                        {
-                            featureType: 'road.highway',
-                            elementType: 'labels.icon',
-                            stylers: [
-                                {visibility: 'off'},
-                            ]                        
-                        },
-                        {
-                            featureType: 'water',
-                            elementType: 'labels.text.stroke',
-                            stylers: [
-                              { lightness: 100 }
-                            ]
-                          },
-                          {
-                            featureType: 'water',
-                            elementType: 'labels.text.fill',
-                            stylers: [
-                              { lightness: -100 }
-                            ]
-                          },
-                          {
-                            featureType: 'poi',
-                            elementType: 'geometry',
-                            stylers: [
-                              { visibility: 'on' },
-                              { color: '#f0e4d3' }
-                            ]
-                          },
-                          {
-                            featureType: 'road.highway',
-                            elementType: 'geometry.fill',
-                            stylers: [
-                              { color: '#efe9e4' },
-                              { lightness: -25 }
-                            ]
-                          }
-                    ],
-                    {name: 'Styled Map'});
-        		// Create a new map instance (object). REQUIRED: where in the html it will go (e.g. div with #map), and center AND zoom.
-        		map = new google.maps.Map(document.getElementById('map'), {
-        			center: {lat: 40.7413549, lng: -73.9980244},
-        			zoom: 14,
-                    // styles: styles,         // initial map now includes styles defined above.
-                    mapTypeControlOptions: {
-                        mapTypeIds: ['satellite', 'styled_map']
-                    }// give user ability to switch map view bw roadmap and our styled map
-                    // mapTypeControl: false //mapTypeControl parameter allows user to change map type. Here, we disable it.
-        		});
-
-                // Associate the styled map with the mapTypeId and set it to display.
-                map.mapTypes.set('styled_map', styles);
-                map.setMapTypeId('styled_map');
-
-        		var locations = [
-                    {title: 'Park Ave Penthouse', location: {lat: 40.7713024, lng: -73.9632393}},
-                    {title: 'Chelsea Loft', location: {lat: 40.7444883, lng: -73.9949465}},
-                    {title: 'Union Square Open Floor Plan', location: {lat: 40.7347062, lng: -73.9895759}},
-                    {title: 'East Village Hip Studio', location: {lat: 40.7281777, lng: -73.984377}},
-                    {title: 'TriBeCa Artsy Bachelor Pad', location: {lat: 40.7195264, lng: -74.0089934}},
-                    {title: 'Chinatown Homey Space', location: {lat: 40.7180628, lng: -73.9961237}}
-                ];
-
-                var largeInfowindow = new google.maps.InfoWindow();
-
-                // Styling the markers: This will be the default listing marker
-                var defaultIcon = makeMarkerIcon('0091ff');
-
-                // Styling the markers: This wil create a "highlighted location" marker color when user mouses over the marker.
-                var highlightedIcon = makeMarkerIcon('FFFF24');
-
-                // In case a marker is outside zoom area and we need to resize and capture the southwest and northeast corners of the window, we create a new "bounds" instance.
-                var bounds = new google.maps.LatLngBounds();
-
-                // Loop below uses location array to create array of markers on initialize, including the "defaultIcon" style created above.
-                for (var i =0; i < locations.length; i++) {
-                    // get the position from the location array
-                    var position = locations[i].location;
-                    var title = locations[i].title;
-                    // create a marker per location, and put into markers array
-                    var marker = new google.maps.Marker({
-                        position: position,
-                        title: title,
-                        icon: defaultIcon, //style defined above loop
-                        animation: google.maps.Animation.DROP,
-                        id: i
-                    });
-                    // Push the marker to our array of markers
-                    markers.push(marker);
-                    // extend the boundaries of the map for each marker
-                    bounds.extend(marker.position);
-                    // create onclick event to open an infowindow at each marker
-                    marker.addListener('click', function() {
-                        populateInfoWindow(this, largeInfowindow);
-                    });
-                    // Two event listeners below change the colors back and forth bw mouseover and mouseout
-                    marker.addListener('mouseover', function(){
-                        this.setIcon(highlightedIcon);
-                    });
-                    marker.addListener('mouseout', function(){
-                        this.setIcon(defaultIcon);
-                    });
-                }
-                
-
-                document.getElementById('show-listings').addEventListener('click', showListings);
-                document.getElementById('hide-listings').addEventListener('click', hideListings);
-
-                // Function below populates the infowindow with the marker's title when the marker is clicked.
-                function populateInfoWindow (marker, infowindow){
-                    if (infowindow.marker != marker) {
-                        infowindow.marker = marker;
-                        infowindow.setContent('<div>' + marker.title + '</div>');
-                        infowindow.open(map, marker);
-                        // Clear the marker when the infowindow is closed
-                        infowindow.addListener('closeclick', function() {
-                            infowindow.setMarker(null);
-                        });
-                    }
-                }
-                // Function to loop through all markers in array and display them
-                function showListings(){
-                    var bounds = new google.maps.LatLngBounds();
-                    // Extend the boundaries of the map for each marker and display the marker
-                    for(var i = 0; i < markers.length; i++){
-                        markers[i].setMap(map);
-                        bounds.extend(markers[i].position);
-                    }
-                    map.fitBounds(bounds);
-                }
-
-                // Fx to loop through the listings and hide them all
-                function hideListings(){
-                    for(var i = 0; i < markers.length; i++){
-                        markers[i].setMap(null);
-                    }
-                }
-        	}
-
-            // Function to take in a color and then create a new marker icon of that color with these properties: 21px wide x 34px high; Origin of (0,0); Anchored at (10,34).
-            function makeMarkerIcon(markerColor) {
-                var markerImage = new google.maps.MarkerImage(
-                  'http://chart.googleapis.com/chart?chst=d_map_spin&chld=1.15|0|'+ markerColor +'|40|_|%E2%80%A2',
-                  new google.maps.Size(21, 34),
-                  new google.maps.Point(0, 0),
-                  new google.maps.Point(10, 34),
-                  new google.maps.Size(21, 34));
-                return markerImage;
-            }
+        <script src="config.js"></script>        
+        <script async defer>
+            document.write(urlTag)
         </script>
 
-	    <script async defer
-	    src="https://maps.googleapis.com/maps/api/js?v=3&callback=initMap&key=" + myKey>
-	    </script>
     </body>
 </html>
+
+ 
